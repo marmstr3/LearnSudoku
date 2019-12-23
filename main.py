@@ -8,19 +8,6 @@ Takes an unsolved sudoku puzzle and solves it
 
 import numpy as np
 
-# Temporary puzzle for testing
-sudoku_board = np.array([[5, 3, 0, 0, 7, 0, 0, 0, 0],
-                         [6, 0, 0, 1, 9, 5, 0, 0, 0],
-                         [0, 9, 8, 0, 0, 0, 0, 6, 0],
-                         [8, 0, 0, 0, 6, 0, 0, 0, 3],
-                         [4, 0, 0, 8, 0, 3, 0, 0, 1],
-                         [7, 0, 0, 0, 2, 0, 0, 0, 6],
-                         [0, 6, 0, 0, 0, 0, 2, 8, 0],
-                         [0, 0, 0, 4, 1, 9, 0, 0, 5],
-                         [0, 0, 0, 0, 8, 0, 0, 7, 9]
-                         ]
-                        )
-
 class SudokuPuzzle():
     """
     Attributes:
@@ -38,6 +25,13 @@ class SudokuPuzzle():
         - coordinate_is_solved: Numpy Array, Boolean; 9x9 array that represents 
         each location on the board. A True value means the corresponding 
         location has been solved for.
+        
+    Methods:
+        - get_cant_be_vector_count
+        - check_if_coordinate_solved
+        - set_initial_coordinate_is_solved
+        - set_initial_cant_be
+        - set_cant_be
     """
     
     def __init__(self, sudoku_board):
@@ -56,7 +50,7 @@ class SudokuPuzzle():
         
         return counter
             
-    def check_if_solved(self):
+    def check_if_coordinate_solved(self):
         for row_coordinate in range(9):
             for column_coordinate in range(9):
                 vector_count = self.get_cant_be_vector_count(row_coordinate, column_coordinate)
@@ -70,18 +64,46 @@ class SudokuPuzzle():
                     error += 'the expected range. Expected a value between 0 '
                     error += 'and 8. Got ' + str(vector_count) + '.'
                     raise ValueError(error)
-                
-                
+    
+    def set_initial_coordinate_is_solved(self):
+        for row_coordinate in range(9):
+            for column_coordinate in range(9):
+                if self.sudoku_board[row_coordinate, column_coordinate]:
+                    self.coordinate_is_solved[row_coordinate, column_coordinate] = True
+    
+    
+    def set_initial_cant_be(self):
+        for row_coordinate in range(9):
+            for column_coordinate in range(9):
+                if self.coordinate_is_solved[row_coordinate, column_coordinate]:
+                    coordinate_value = self.sudoku_board[row_coordinate, column_coordinate]
+                    self.cant_be[row_coordinate, column_coordinate] = np.full((9), 1, dtype=bool)
+                    self.cant_be[row_coordinate, column_coordinate, (coordinate_value - 1)] = False
     
     def set_cant_be(self):
         for row_coordinate in range(9):
             for column_coordinate in range(9):
-                if self.sudoku_board[row_coordinate, column_coordinate]:
-                    self.cant_be = []
-                for n in range(9):
-                    if (n + 1) in self.sudoku_board[row_coordinate, :]:
-                        self.cant_be[row_coordinate, column_coordinate, n] = 1
-                    elif (n + 1) in self.sudoku_board[:, column_coordinate]:
-                        self.cant_be[row_coordinate, column_coordinate, n] = 1
+                if not self.coordinate_is_solved[row_coordinate, column_coordinate]:
+                    for n in range(9):
+                        if (n + 1) in self.sudoku_board[row_coordinate, :]:
+                            self.cant_be[row_coordinate, column_coordinate, n] = True
+                        elif (n + 1) in self.sudoku_board[:, column_coordinate]:
+                            self.cant_be[row_coordinate, column_coordinate, n] = True
                 
 
+# Temporary puzzle for testing
+sudoku_board = np.array([[5, 3, 0, 0, 7, 0, 0, 0, 0],
+                         [6, 0, 0, 1, 9, 5, 0, 0, 0],
+                         [0, 9, 8, 0, 0, 0, 0, 6, 0],
+                         [8, 0, 0, 0, 6, 0, 0, 0, 3],
+                         [4, 0, 0, 8, 0, 3, 0, 0, 1],
+                         [7, 0, 0, 0, 2, 0, 0, 0, 6],
+                         [0, 6, 0, 0, 0, 0, 2, 8, 0],
+                         [0, 0, 0, 4, 1, 9, 0, 0, 5],
+                         [0, 0, 0, 0, 8, 0, 0, 7, 9]
+                         ]
+                        )
+
+sudoku = SudokuPuzzle(sudoku_board)
+sudoku.set_initial_coordinate_is_solved()
+sudoku.set_initial_cant_be()
