@@ -48,35 +48,30 @@ class SudokuPuzzle():
 
     
     def get_cant_be_vector_count(self, row_coordinate, column_coordinate):
-        cant_be_vector = cant_be[row_coordiante, column_coordinate]
+        cant_be_vector = self.cant_be[row_coordinate, column_coordinate]
         counter = 0
         for n in range(0,9):
-            if self.cant_be[row_coordinate, column_coordinate, n]:
+            if cant_be_vector[n]:
                 counter += 1
         
         return counter
-    
-        if counter == 8:
-            solved = True
-        elif counter > 0 and counter < 8:
-            solved = False
-        else:
-            raise ValueError(')
             
     def check_if_solved(self):
         for row_coordinate in range(9):
             for column_coordinate in range(9):
                 vector_count = self.get_cant_be_vector_count(row_coordinate, column_coordinate)
                 if vector_count == 8:
-                    solved = True
+                    self.coordinate_is_solved[row_coordinate, column_coordinate] = True
                 elif vector_count > 0 and vector_count < 8:
-                    solved = False
+                    self.coordinate_is_solved[row_coordinate, column_coordinate] = False
                 else:
                     error = 'Error in SudokuPuzzle.check_if_solved. Count of '
                     error += 'possible cant_be values is outside of '
                     error += 'the expected range. Expected a value between 0 '
                     error += 'and 8. Got ' + str(vector_count) + '.'
                     raise ValueError(error)
+                
+                
     
     def set_cant_be(self):
         for row_coordinate in range(9):
