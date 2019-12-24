@@ -23,5 +23,5 @@ sudoku_board = [[5, 3, 0, 0, 7, 0, 0, 0, 0],
                 
 
 sudoku = SudokuObjects.SudokuPuzzle(sudoku_board)
-#sudoku.set_initial_cant_be()
+sudoku.set_initial_cant_be()
 

@@ -94,7 +94,7 @@ class SudokuPuzzle():
         rows = [0]*9
         self.sudoku_board = []
         for n in range(9):
-            self.sudoku_board.append(rows)
+            self.sudoku_board.append([0]*9)
 
     def get_coordinate(self, row_coordinate, column_coordinate):
         coordinate = self.sudoku_board[row_coordinate][column_coordinate]
@@ -148,8 +148,8 @@ class SudokuCoordinate():
     def __init__(self, coordinate_value, location):
         self.value = coordinate_value
         self.location = location
-        self.set_initial_cant_be()
-        self.solved = False
+        #self.set_initial_cant_be()
+        #self.solved = False
     
     def set_initial_cant_be(self):
         if self.value:
