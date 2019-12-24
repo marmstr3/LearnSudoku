@@ -91,7 +91,6 @@ class SudokuPuzzle():
         self.check_if_values_in_range(sudoku_board)
 
     def initialize_sudoku_board(self):
-        rows = [0]*9
         self.sudoku_board = []
         for n in range(9):
             self.sudoku_board.append([0]*9)
