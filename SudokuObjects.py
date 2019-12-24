@@ -7,6 +7,7 @@ Created on Mon Dec 23 16:08:45 2019
 """
 
 import numpy as np
+import copy
 
 class SudokuPuzzle():
     """
@@ -38,15 +39,77 @@ class SudokuPuzzle():
         self.is_solved = False
         self.set_initial_sudoku_board(sudoku_board)
 
+
+    @staticmethod
+    def check_shape_is_even(sudoku_board, number_of_columns):
+        for row in sudoku_board:
+            specific_number_of_columns = len(row)
+            if specific_number_of_columns != number_of_columns:
+                error = "Input rows are not all the same length. Please check "
+                error += "your input and try again.\nSource: SudokuPuzzle."
+                error += "check_shape_is_even"
+                raise ValueError(error)
+            else:
+                return True
+
+    def iterable_sudoku_board(self):
+        iterable_sudoku_board = copy.copy(self.sudoku_board[0])
+        for n in range(1,9):
+            iterable_sudoku_board += copy.copy(self.sudoku_board[n])
+            
+        return iterable_sudoku_board
+
+    def get_sudoku_board_shape(self, sudoku_board):
+        number_of_rows = len(sudoku_board)
+        number_of_columns = len(sudoku_board[0])
+        if self.check_shape_is_even(sudoku_board, number_of_columns):
+            return (number_of_rows, number_of_columns)
+        
+    def check_if_values_in_range(self, sudoku_board):
+        for n in range(9):
+            max_value = max(sudoku_board[n])
+            min_value = min(sudoku_board[n])
+            if min_value < 0:
+                error = "Negative input value found. Please check your input "
+                error += "and try again.\nSource:SudokuPuzzle.set_initial_"
+                error += "sudoku_board"
+                raise ValueError(error)
+            elif max_value > 9:
+                error = "Value greater than 9 found. Please check your input "
+                error += "and try again.\nSource:SudokuPuzzle.set_initial_"
+                error += "sudoku_board"
+        
+    def check_sudoku_board_input(self, sudoku_board):
+        if type(sudoku_board) is not list:
+            error = "Input is not a list. Please check your input and try "
+            error += "again.\nSource: SudokuPuzzle.set_initial_sudoku_board"
+            raise ValueError(error)
+        elif self.get_sudoku_board_shape != (9,9):
+            error = "Input is not 9x9. Please check your input and try again."
+            error += "\nSource: SudokuPuzzle.set_initial_sudoku_board"
+            
+        self.check_if_values_in_range(sudoku_board)
+
+    def initialize_sudoku_board(self):
+        rows = [0]*9
+        self.sudoku_board = []
+        for n in range(9):
+            self.sudoku_board.append(rows)
+
+    def get_coordinate(self, row_coordinate, column_coordinate):
+        coordinate = self.sudoku_board[row_coordinate][column_coordinate]
+        return coordinate
+
     def set_initial_sudoku_board(self, sudoku_board):
-        self.sudoku_board = np.empty((9,9))
+        self.check_sudoku_board_input(sudoku_board)
+        self.initialize_sudoku_board()
         for row_coordinate in range(9):
             for column_coordinate in range(9):
-                coordinate_value = sudoku_board[row_coordinate, column_coordinate]
-                self.sudoku_board[row_coordinate, column_coordinate] = SudokuCoordinate(coordinate_value, (row_coordinate, column_coordinate))
+                coordinate_value = sudoku_board[row_coordinate][column_coordinate]
+                self.sudoku_board[row_coordinate][column_coordinate] = SudokuCoordinate(coordinate_value, (row_coordinate, column_coordinate))
     
     def set_initial_cant_be(self):
-        for coordinate in np.nditer(self.sudoku_board):
+        for coordinate in self.iterable_sudoku_board():
             coordinate.set_initial_cant_be
     
     def set_cant_be(self):
@@ -58,13 +121,35 @@ class SudokuPuzzle():
                             self.cant_be[row_coordinate, column_coordinate, n] = True
                         elif (n + 1) in self.sudoku_board[:, column_coordinate]:
                             self.cant_be[row_coordinate, column_coordinate, n] = True
-                            
+                      
+    def check_if_solved(self):
+        solved_tracker = True
+        for coordinate in self.iterable_sudoku_board():
+            if not coordinate.value:
+                solved_tracker = False
+                break
+        self.is_solved = solved_tracker
                             
 class SudokuCoordinate():
+    """
+    Attributes:
+        - value: Integer; The value for this coordinate on the sudoku board. 0
+        if the value is unknown.
+        - location: 2x1 Tuple; The coordinate location on the sudoku board.
+        coordinate on the sudoku board. (row_coordinate, column_coordinate).
+        - cant_be: 9x1 Numpy Array, Boolean; Represents the possible values for this 
+        coordinates (1 through 9). A value of True in a given space means 
+        that the respective value is not a valid candidate for the value of the 
+        coordinate.
+        - solved: Boolean; Flag for whether or not the value for this 
+        coordinate has been solved for.
+    """
+    
     def __init__(self, coordinate_value, location):
         self.value = coordinate_value
         self.location = location
         self.set_initial_cant_be()
+        self.solved = False
     
     def set_initial_cant_be(self):
         if self.value:
@@ -73,20 +158,13 @@ class SudokuCoordinate():
         else:
             self.cant_be = np.zeros((9), dtype=bool)
     
-    def check_if_coordinate_solved(self):
-        for row_coordinate in range(9):
-            for column_coordinate in range(9):
-                vector_count = self.get_cant_be_vector_count(row_coordinate, column_coordinate)
-                if vector_count == 8:
-                    self.coordinate_is_solved[row_coordinate, column_coordinate] = True
-                elif vector_count > 0 and vector_count < 8:
-                    self.coordinate_is_solved[row_coordinate, column_coordinate] = False
-                else:
-                    error = 'Error in SudokuPuzzle.check_if_solved. Count of '
-                    error += 'possible cant_be values is outside of '
-                    error += 'the expected range. Expected a value between 0 '
-                    error += 'and 8. Got ' + str(vector_count) + '.'
-                    raise ValueError(error)
+    def get_cant_be_vector_count(self):
+        counter = 0
+        for value in np.nditer(self.cant_be):
+            if value:
+                counter += 1
+        
+        return counter
                     
     def update_cant_be(self, row, column, region):
         """
@@ -111,4 +189,4 @@ class SudokuCoordinate():
                 region_value = flattened_region[n].value
                 self.cant_be[region_value - 1] = True
         # N-Exclusion
-        
+          
