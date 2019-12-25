@@ -53,6 +53,24 @@ class SudokuPuzzle():
             else:
                 return True
 
+    def get_readable_board(self):
+        # initialize board
+        readable_board = []
+        for n in range(9):
+            row = []
+            for m in range(9):
+                row.append(0)
+            readable_board.append(row)
+        
+        # put in values for board
+        for n in range(9):
+            for m in range(9):
+                value = self.sudoku_board[n][m].value
+                readable_board[n][m] = value
+        
+        return readable_board
+
+
     def iterable_sudoku_board(self):
         iterable_sudoku_board = copy.copy(self.sudoku_board[0])
         for n in range(1,9):
@@ -141,7 +159,7 @@ class SudokuPuzzle():
             column.append(self.sudoku_board[n][column_number])
         return column
     
-    def update_cant_be(self):
+    def update_coordinates(self):
         for coordinate in self.iterable_sudoku_board():
             row_number = coordinate.location[0]
             column_number = coordinate.location[1]
@@ -149,6 +167,7 @@ class SudokuPuzzle():
             column = self.get_column(column_number)
             region = self.get_region(row_number, column_number)
             coordinate.update_cant_be(row, column, region)
+            coordinate.update_value()
         
     def check_if_solved(self):
         solved_tracker = True
@@ -181,21 +200,31 @@ class SudokuCoordinate():
         self.set_initial_cant_be()
         self.solved = False
     
+    
     def set_initial_cant_be(self):
         if self.value:
-            self.cant_be = np.full((9), 1, dtype=bool)
+            self.cant_be = [True]*9
             self.cant_be[self.value - 1] = False
         else:
-            self.cant_be = np.zeros((9), dtype=bool)
+            self.cant_be = [False]*9
     
     def get_cant_be_vector_count(self):
         counter = 0
-        for value in np.nditer(self.cant_be):
+        for value in self.cant_be:
             if value:
                 counter += 1
         
         return counter
-                    
+               
+    def get_region_location(self):
+        row = self.location[0]
+        column = self.location[1]
+        region_row_location = row%3
+        region_column_location = column%3
+        region_location = region_row_location*3 + region_column_location
+        
+        return region_location
+        
     def update_cant_be(self, row, column, region):
         """
         Inputs:
@@ -206,16 +235,25 @@ class SudokuCoordinate():
         for n in range(9):
         # If the cant_be property for this entry has not been determined yet
             # Check Row
-            if row[n].value:
+            if row[n].value and n != self.location[1]:
                 row_value = row[n].value
                 self.cant_be[row_value - 1] = True
             # Check Column
-            if column[n].value:
+            if column[n].value and n != self.location[0]:
                 column_value = column[n].value
                 self.cant_be[column_value - 1] = True
             # Check Region
-            if region[n].value:
+            if region[n].value and n!= self.get_region_location():
                 region_value = region[n].value
                 self.cant_be[region_value - 1] = True
         # N-Exclusion
           
+    def update_value(self):
+        #print(self.get_cant_be_vector_count())
+        if self.get_cant_be_vector_count() == 8 and not self.value:
+            for n in range(9):
+                if self.cant_be[n] == False:
+                    #print(n+1)
+                    self.value = n+1
+                    break
+                
