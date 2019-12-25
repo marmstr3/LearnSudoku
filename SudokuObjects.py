@@ -8,6 +8,7 @@ Created on Mon Dec 23 16:08:45 2019
 
 import numpy as np
 import copy
+import math
 
 class SudokuPuzzle():
     """
@@ -107,10 +108,6 @@ class SudokuPuzzle():
                 coordinate_value = sudoku_board[row_coordinate][column_coordinate]
                 self.sudoku_board[row_coordinate][column_coordinate] = SudokuCoordinate(coordinate_value, (row_coordinate, column_coordinate))
     
-    def set_initial_cant_be(self):
-        for coordinate in self.iterable_sudoku_board():
-            coordinate.set_initial_cant_be
-    
     def set_cant_be(self):
         for row_coordinate in range(9):
             for column_coordinate in range(9):
@@ -121,6 +118,38 @@ class SudokuPuzzle():
                         elif (n + 1) in self.sudoku_board[:, column_coordinate]:
                             self.cant_be[row_coordinate, column_coordinate, n] = True
                       
+    def get_region(self, row_number, column_number):
+        # Floor divide to get index of region and then multiply by 3 to get 
+        # first column/row of region
+        initial_row = int(row_number/3)*3
+        initial_column = int(column_number/3)*3
+        region = []
+        for n in range(3):
+            for m in range(3):
+                loop_row = n + initial_row
+                loop_column = m + initial_column
+                region.append(self.sudoku_board[loop_row][loop_column])
+        return region
+    
+    def get_row(self, row_number):
+        row = self.sudoku_board[row_number]
+        return row
+    
+    def get_column(self, column_number):
+        column = []
+        for n in range(9):
+            column.append(self.sudoku_board[n][column_number])
+        return column
+    
+    def update_cant_be(self):
+        for coordinate in self.iterable_sudoku_board():
+            row_number = coordinate.location[0]
+            column_number = coordinate.location[1]
+            row = self.get_row(row_number)
+            column = self.get_column(column_number)
+            region = self.get_region(row_number, column_number)
+            coordinate.update_cant_be(row, column, region)
+        
     def check_if_solved(self):
         solved_tracker = True
         for coordinate in self.iterable_sudoku_board():
@@ -128,6 +157,8 @@ class SudokuPuzzle():
                 solved_tracker = False
                 break
         self.is_solved = solved_tracker
+        
+    
                             
 class SudokuCoordinate():
     """
@@ -147,8 +178,8 @@ class SudokuCoordinate():
     def __init__(self, coordinate_value, location):
         self.value = coordinate_value
         self.location = location
-        #self.set_initial_cant_be()
-        #self.solved = False
+        self.set_initial_cant_be()
+        self.solved = False
     
     def set_initial_cant_be(self):
         if self.value:
@@ -172,7 +203,6 @@ class SudokuCoordinate():
             - column: 9x1 Numpy Array; The full column that the coordinate is a member of
             - region: 3x3 Numpy Array; The region that the coordinate is a member of
         """
-        flattened_region = region.flatten()
         for n in range(9):
         # If the cant_be property for this entry has not been determined yet
             # Check Row
@@ -184,8 +214,8 @@ class SudokuCoordinate():
                 column_value = column[n].value
                 self.cant_be[column_value - 1] = True
             # Check Region
-            if flattened_region[n].value:
-                region_value = flattened_region[n].value
+            if region[n].value:
+                region_value = region[n].value
                 self.cant_be[region_value - 1] = True
         # N-Exclusion
           
