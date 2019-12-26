@@ -193,11 +193,34 @@ class SudokuCoordinate():
     """
     
     def __init__(self, coordinate_value, location):
+        self.check_inputs(coordinate_value, location)
         self.value = coordinate_value
         self.location = location
         self.set_initial_cant_be()
         self.solved = False
     
+    def error_value_is_not_integer(self):
+        error = "Non-integer value found. Please check your input and try "
+        error += "again.\nSource: SudokuCoordinate"
+        raise TypeError(error)
+    
+    def error_value_is_negative(self):
+        error = "Negative value found. Please check your input and try again."
+        error += "\nSource: SudokuCoordinate"
+        raise ValueError(error)
+        
+    def error_value_is_greater_than_nine(self):
+        error = "Value larger than 9 found. Please check your input and try "
+        error += "again.\nSource: SudokuCoordinate"
+        raise ValueError(error)
+    
+    def check_inputs(self, coordinate_value, location):
+        if type(coordinate_value) != int:
+            self.error_value_is_not_integer()
+        elif coordinate_value < 0:
+            self.error_value_is_negative()
+        elif coordinate_value > 9:
+            self.error_value_is_greater_than_nine()
     
     def set_initial_cant_be(self):
         if self.value:
