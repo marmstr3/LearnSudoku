@@ -21,5 +21,27 @@ class InitTestCase(unittest.TestCase):
         value = SudokuCoordinate(5,(0,0)).value
         self.assertEqual(5, value)
         
+    def test_value_is_zero(self):
+        """
+        Tests for when the value of the coordinate is the expected minimum, 0
+        """
+        value = SudokuCoordinate(0, (0,0)).value
+        self.assertEqual(0, value)
+        
+        
+    def test_value_is_nine(self):
+        """
+        Tests for when the value of the coordinate is the expected maximum, 9
+        """
+        value = SudokuCoordinate(9, (0,0)).value
+        self.assertEqal(9, value)
+        
+    def test_value_is_negative(self):
+        """
+        Tests for when the value of the coordinate is an unexpected negative 
+        integer, -1
+        """
+        with self.assertRaises(ValueError):
+            SudokuCoordinate(-1, (0,0))
         
 unittest.main()
