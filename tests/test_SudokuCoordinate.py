@@ -9,7 +9,7 @@ Created on Thu Dec 26 07:22:43 2019
 import unittest
 from SudokuObjects import SudokuCoordinate
 
-class InitTestCase(unittest.TestCase):
+class InputsTestCase(unittest.TestCase):
     """
     Tests the __init__() method for the SudokuObjects.SudokuCoordinate class
     """
@@ -76,6 +76,26 @@ class InitTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             SudokuCoordinate(SudokuCoordinate(0,(0,0)), (0,0))
             
+    def test_location_is_3_4(self):
+        """
+        Tests for when the location is an expected value, (3,4)
+        """
+        location = SudokuCoordinate(0, (3,4)).location
+        self.assertEqual((3,4), location)
+        
+    def test_location_is_0_0(self):
+        """
+        Tests for when the location is the expected minimum, (0,0)
+        """
+        location = SudokuCoordinate(0, (0,0)).location
+        self.assertEqual((0,0), location)
     
     
+    def test_location_is_9_9(self):
+        """
+        Tests for when the location is the expected maximum, (9,9)
+        """
+        location = SudokuCoordinate(0, (9,9)).location
+        self.assertEqual((9,9), location)
+        
 unittest.main()
