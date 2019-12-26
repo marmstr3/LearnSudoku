@@ -5,10 +5,8 @@ Created on Mon Dec 23 16:08:45 2019
 
 @author: Michael
 """
-
-import numpy as np
 import copy
-import math
+
 
 class SudokuPuzzle():
     """
@@ -203,8 +201,7 @@ class SudokuCoordinate():
     
     def set_initial_cant_be(self):
         if self.value:
-            self.cant_be = [True]*9
-            self.cant_be[self.value - 1] = False
+            self.create_solved_cant_be()
         else:
             self.cant_be = [False]*9
     
@@ -225,6 +222,34 @@ class SudokuCoordinate():
         
         return region_location
         
+    def create_solved_cant_be(self):
+        self.cant_be = [True]*9
+        self.cant_be[self.value -1] = False
+    
+    def single_exclusion(self, row, column, region):
+        for cant_be_index in range(9):
+            if not self.cant_be[cant_be_index]:
+                mutual_row_allowables = []
+                mutual_column_allowables= []
+                mutual_region_allowables = []
+                for row_column_region_index in range(9):
+                    if not row[row_column_region_index].cant_be[cant_be_index]:
+                        mutual_row_allowables.append(row[row_column_region_index].location)
+                    if not column[row_column_region_index].cant_be[cant_be_index]:
+                        mutual_column_allowables.append(column[row_column_region_index].location)
+                    if not region[row_column_region_index].cant_be[cant_be_index]:
+                        mutual_region_allowables.append(region[row_column_region_index].location)
+                    if len(mutual_row_allowables) == 0:
+                        self.value = cant_be_index + 1
+                        self.create_solved_cant_be()
+                        break
+                    if len(mutual_column_allowables) == 0:
+                        self.value = cant_be_index + 1
+                        self.create_solved_cant_be()
+                    if len(mutual_region_allowables) == 0:
+                        self.value = cant_be_index + 1
+                        self.create_solved_cant_be()
+    
     def update_cant_be(self, row, column, region):
         """
         Inputs:
@@ -249,11 +274,9 @@ class SudokuCoordinate():
         # N-Exclusion
           
     def update_value(self):
-        #print(self.get_cant_be_vector_count())
         if self.get_cant_be_vector_count() == 8 and not self.value:
             for n in range(9):
                 if self.cant_be[n] == False:
-                    #print(n+1)
                     self.value = n+1
                     break
                 

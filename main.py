@@ -29,4 +29,3 @@ while not sudoku.is_solved and counter < 100:
     sudoku.update_coordinates()
     sudoku.check_if_solved()
     counter += 1
-    print(counter)
