@@ -14,6 +14,8 @@ class InputsTestCase(unittest.TestCase):
     Tests the __init__() method for the SudokuObjects.SudokuCoordinate class
     """
     
+# Test the SudokuCoordinate.value attribute -----------------------------------
+    
     def test_value_is_five(self):
         """
         Tests for when the value of the coordinate is an expected integer, 5
@@ -75,15 +77,75 @@ class InputsTestCase(unittest.TestCase):
         """
         with self.assertRaises(TypeError):
             SudokuCoordinate(SudokuCoordinate(0,(0,0)), (0,0))
-            
-    def test_location_is_3_4(self):
+  
+# Test the SudokuCoordinate attribute -----------------------------------------
+    def test_location_is_tuple_3_4(self):
         """
-        Tests for when the location is an expected value, (3,4)
+        Tests for when the location is an expected tuple, (3, 4)
         """
         location = SudokuCoordinate(0, (3,4)).location
         self.assertEqual((3,4), location)
+    
+    def test_location_is_list_3_4(self):
+        """
+        Tests for when the location is an expected list, [3, 4]
+        """
+        location = SudokuCoordinate(0, [3,4]).location
+        self.assertEqual((3,4), location)
         
-    def test_location_is_0_0(self):
+    def test_location_is_empty(self):
+        """
+        Tests for when the location is an unexpected empty tuple, ()
+        """
+        with self.assertRaises(ValueError):
+            SudokuCoordinate(0, ())
+            
+    def test_location_is_large(self):
+        """
+        Tests for when the location is an unexpected large tuple, (0, 0, 0)
+        """
+        with self.assertRaises(ValueError):
+            SudokuCoordinate(0, (0,0,0))
+        
+    def test_location_is_int(self):
+        """
+        Tests for when the location is an unexpected integer, 0
+        """
+        with self.assertRaises(TypeError):
+            SudokuCoordinate(0, 0)
+            
+    def test_location_is_string(self):
+        """
+        Tests for when the location is an unexpected string, 'a'
+        """
+        with self.assertRaises(TypeError):
+            SudokuCoordinate(0, 'a')
+            
+    def test_location_is_float(self):
+        """
+        Tests for when the location is an unexpected float, 1.1
+        """
+        with self.assertRaises(TypeError):
+            SudokuCoordinate(0, 1.1)
+            
+    def test_location_is_object(self):
+        """
+        Tests for when the location is an unexpected object, SudokuCoordinate()
+        """
+        with self.assertRaises(TypeError):
+            SudokuCoordinate(0, (0,0))
+    
+    
+# Test the SudokuCoordinate.location[0] attribute -----------------------------
+         
+    def test_location_0_is_expected_integer(self):
+        """
+        Tests for when the location[0] is an expected integer, 3
+        """
+        location = SudokuCoordinate(0, (3,0)).location
+        self.assertEqual((3,4), location)
+        
+    def test_location_0_is_min(self):
         """
         Tests for when the location is the expected minimum, (0,0)
         """
@@ -91,11 +153,26 @@ class InputsTestCase(unittest.TestCase):
         self.assertEqual((0,0), location)
     
     
-    def test_location_is_9_9(self):
+    def test_location_0_is_max(self):
         """
         Tests for when the location is the expected maximum, (9,9)
         """
         location = SudokuCoordinate(0, (9,9)).location
         self.assertEqual((9,9), location)
+        
+    def test_location_0_contains_negative(self):
+        """
+        Tests for when the location contains a negative value
+        """
+        
+    def test_location_0_contains_character(self):
+        """
+        Tests for when the location contains an unexpected character, a in 
+        (a,9)
+        """
+        with self.assertRaises(TypeError):
+            SudokuCoordinate(0, ('a',9))
+        
+        
         
 unittest.main()
