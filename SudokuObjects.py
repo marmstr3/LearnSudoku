@@ -195,7 +195,7 @@ class SudokuCoordinate():
     def __init__(self, coordinate_value, location):
         self.check_inputs(coordinate_value, location)
         self.value = coordinate_value
-        self.location = location
+        self.set_location(location)
         self.set_initial_cant_be()
         self.solved = False
     
@@ -213,14 +213,56 @@ class SudokuCoordinate():
         error = "Value larger than 9 found. Please check your input and try "
         error += "again.\nSource: SudokuCoordinate"
         raise ValueError(error)
-    
-    def check_inputs(self, coordinate_value, location):
+        
+    def error_location_is_non_iterable(self):
+        error = "Non-iterable location found. Please check your input to make"
+        error += "sure all locations are of type 'tuple' or type 'list'.\n"
+        error += "Source: SudokuCoordinate"
+        raise TypeError(error)
+        
+    def error_location_is_too_long(self):
+        error = "Location is not of length 2. Please check your input to make "
+        error += "sure all locations are of length 2. Source: SudokuCoordinate"
+        raise ValueError(error)
+        
+    def check_input_value(self, coordinate_value):
         if type(coordinate_value) != int:
             self.error_value_is_not_integer()
         elif coordinate_value < 0:
             self.error_value_is_negative()
         elif coordinate_value > 9:
             self.error_value_is_greater_than_nine()
+            
+    def check_if_in_range(self, axis_location):
+        if axis_location < 0:
+            self.error_value_is_negative()
+        elif axis_location > 9:
+            self.error_value_is_greater_than_nine()
+            
+    def check_if_integer(self, axis_location):
+        if type(axis_location) != int:
+            self.error_value_is_not_integer()
+            
+    def check_input_location(self, location):
+        if type(location) != tuple and type(location) != list:
+            self.error_location_is_non_iterable()
+        if len(location) != 2:
+            self.error_location_is_too_long()
+        else:
+            for axis_location in location:
+                self.check_if_in_range(axis_location)
+                self.check_if_integer(axis_location)
+    
+    def check_inputs(self, coordinate_value, location):
+        self.check_input_value(coordinate_value)
+        self.check_input_location(location)
+        
+    def set_location(self, location):
+        if type(location) == list:
+            self.location = tuple(location)
+        else:
+            self.location = location
+            
     
     def set_initial_cant_be(self):
         if self.value:

@@ -134,8 +134,7 @@ class InputsTestCase(unittest.TestCase):
         Tests for when the location is an unexpected object, SudokuCoordinate()
         """
         with self.assertRaises(TypeError):
-            SudokuCoordinate(0, (0,0))
-    
+            SudokuCoordinate(0, SudokuCoordinate(0, (0,0)))
     
 # Test the SudokuCoordinate.location[0] attribute -----------------------------
          
