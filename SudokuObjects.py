@@ -68,7 +68,6 @@ class SudokuPuzzle():
         
         return readable_board
 
-
     def iterable_sudoku_board(self):
         iterable_sudoku_board = copy.copy(self.sudoku_board[0])
         for n in range(1,9):
@@ -291,27 +290,49 @@ class SudokuCoordinate():
         self.cant_be = [True]*9
         self.cant_be[self.value -1] = False
     
+    def get_mutual_allowables(self, shared_set, cant_be_index):
+        """
+        Finds all mutually allowed values between self and a shared set.
+        Returns:
+            - mutual_allowables: list, tuple, integers; list of the locations
+            of all coordinates in the shared set that share allowable value
+        """
+        mutual_allowables = []
+        for shared_set_index in range(9):
+            if not shared_set[shared_set_index].cant_be[cant_be_index]:
+                mutual_allowables.append(shared_set[shared_set_index].location)
+        
+        return mutual_allowables
+    
     def single_exclusion(self, row, column, region):
+        """
+        Searches to see if there is any value, 1-9, for which this coordinate 
+        is the only coordinate in its region, column, or row that can be that
+        value.
+        
+        Inputs: 
+            - row: Array, SudokuCoordinate(); the coordinates in the row that 
+            this coordinate is a part of
+            - column: Array, SudokuCoordinate(); the coordinates in the column 
+            that this coordinate is a part of
+            - region: Array, SudokuCoordinate(); the coordinates in the region
+            that this coordinate is a part of
+        """
         for cant_be_index in range(9):
             if not self.cant_be[cant_be_index]:
-                mutual_row_allowables = []
-                mutual_column_allowables= []
-                mutual_region_allowables = []
                 for row_column_region_index in range(9):
-                    if not row[row_column_region_index].cant_be[cant_be_index]:
-                        mutual_row_allowables.append(row[row_column_region_index].location)
-                    if not column[row_column_region_index].cant_be[cant_be_index]:
-                        mutual_column_allowables.append(column[row_column_region_index].location)
-                    if not region[row_column_region_index].cant_be[cant_be_index]:
-                        mutual_region_allowables.append(region[row_column_region_index].location)
+                    mutual_row_allowables = self.get_mutual_allowables(row, cant_be_index)
+                    mutual_column_allowables = self.get_mutual_allowables(column, cant_be_index)
+                    mutual_region_allowables = self.get_mutual_allowables(region, cant_be_index)
                     if len(mutual_row_allowables) == 0:
                         self.value = cant_be_index + 1
                         self.create_solved_cant_be()
                         break
-                    if len(mutual_column_allowables) == 0:
+                    elif len(mutual_column_allowables) == 0:
                         self.value = cant_be_index + 1
                         self.create_solved_cant_be()
-                    if len(mutual_region_allowables) == 0:
+                        break
+                    elif len(mutual_region_allowables) == 0:
                         self.value = cant_be_index + 1
                         self.create_solved_cant_be()
     

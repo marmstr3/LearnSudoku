@@ -253,7 +253,6 @@ class InputsTestCase(unittest.TestCase):
         SudokuCoordinate()
         """
         with self.assertRaises(TypeError):
-            SudokuCoordinate(0, (0,SudokuCoordinate(0, (0,0))))
-            
+            SudokuCoordinate(0, (0,SudokuCoordinate(0, (0,0)))) 
             
 unittest.main()
