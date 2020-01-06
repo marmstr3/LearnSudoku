@@ -173,8 +173,83 @@ class SudokuPuzzle():
                 solved_tracker = False
                 break
         self.is_solved = solved_tracker
-        
     
+    def get_shared_set_cant_be_array(self, shared_set):
+        cant_be_by_value = []
+        for value_index in range(9):
+            cant_be_vector = []
+            for coordinate in shared_set:
+                cant_be_vector.append(coordinate.cant_be[value_index])
+            cant_be_by_value.append(cant_be_vector)
+        return cant_be_by_value
+            
+    def get_values_with_n_matches(self, n, shared_set_cant_be):
+        """
+        Returns a list for each possible value (1-9). If the value has n number
+        of candidate-coordinates in the shared_set, then the list is the
+        index within the set of each candidate-coordinate. Otherwise, the
+        list is empty.
+        """
+        location_of_matches = []
+        for value in shared_set_cant_be:
+            if sum(value) == n:
+                for m in range(9):
+                    location = value[n]
+                    location_of_match = []
+                    if not location:
+                        location_of_match.append(m)
+            else:
+                location_of_match = []
+            location_of_matches.append(location_of_match)
+            
+        return location_of_matches
+                        
+    def set_cant_be_exclusions(self,
+                               match_indices,
+                               shared_set,
+                               values
+                               ):
+        for match_index in match_indices:
+            shared_set[match_index].cant_be = [True]*9
+            for value in values:
+                shared_set[match_index].cant_be[value] = False
+    
+    def get_all_match_values(self, match_indices, matches_in_set):
+        values = []
+        for value in range(9):
+            if matches_in_set[value] == match_indices:
+                values.append(value)
+                
+        return values
+    
+    def set_exclusions_cant_be(self, match_indices, shared_set):
+        values = self.get_all_match_values(match_indices)
+        self.set_cant_be_exclusions(match_indices, shared_set, values)
+    
+    def find_nth_exclusions(self, n, matches_in_shared_set, shared_set):
+        for value in range(9):
+            match_indices = matches_in_shared_set[value]
+            if match_indices and matches_in_shared_set.count(match_indices == n):
+                self.set_exclusions_cant_be(match_indices, shared_set)
+    
+    def board_nth_exclusion(self, n):
+        for set_index in range(9):
+            row = self.get_row(set_index)
+            column = self.get_column(set_index)
+            region = self.get_region(set_index, (set_index%3)*3)
+
+            row_cant_be_array = self.get_shared_set_cant_be_array(row)
+            column_cant_be_array = self.get_shared_set_cant_be_array(column)
+            region_cant_be_array = self.get_shared_set_cant_be_array(region)
+            
+            matches_in_row = self.get_values_with_n_matches(n, row_cant_be_array)
+            matches_in_column = self.get_values_with_n_matches(n, column_cant_be_array)
+            matches_in_region = self.get_values_with_n_matches(n, region_cant_be_array)
+                
+            self.find_nth_exclusions(n, matches_in_row, row)
+            self.find_nth_exclusions(n, matches_in_column, column)
+            self.find_nth_exclusions(n, matches_in_region, region)
+                    
                             
 class SudokuCoordinate():
     """
@@ -294,15 +369,56 @@ class SudokuCoordinate():
         """
         Finds all mutually allowed values between self and a shared set.
         Returns:
-            - mutual_allowables: list, tuple, integers; list of the locations
+            - mutual_allowables: list, SudokuCoordinate; list of the locations
             of all coordinates in the shared set that share allowable value
         """
         mutual_allowables = []
         for shared_set_index in range(9):
             if not shared_set[shared_set_index].cant_be[cant_be_index]:
-                mutual_allowables.append(shared_set[shared_set_index].location)
+                mutual_allowables.append(shared_set[shared_set_index])
         
         return mutual_allowables
+    
+    def build_empty_mutual_allowables(self):
+        mutual_allowables = []
+        for n in range(9):
+            mutual_allowables.append([])
+            
+        return mutual_allowables
+    
+    def nth_exclusion(self, n, row, column, region):
+        """
+        mutual_row_allowables: List, List, SudokuCoordinate; Each row
+        represents a cant_be index. Stores the SudokuCoordinates in the same
+        row as self that share that cant_be index as False
+        """
+        
+        """
+        print('nth_exclusion: UNDER CONSTRUCTION')
+        mutual_row_allowables = self.build_empty_mutual_allowables()
+        mutual_column_allowables = self.build_empty_mutual_allowables()
+        mutual_region_allowables = self.build_empty_mutual_allowables()
+        # loop through self.cant_be
+        for cant_be_index in range(9):
+            if not self.cant_be[cant_be_index]:
+                mutual_row_allowables[cant_be_index] = self.get_mutual_allowables(row, cant_be_index)
+                mutual_column_allowables[cant_be_index] = self.get_mutual_allowables(column, cant_be_index)
+                mutual_region_allowables[cant_be_index] = self.get_mutual_allowables(region, cant_be_index)
+        # Check for n mutual allowables of length n-1 with matching coordinate
+        # makeup
+        for cant_be_index in range(9):
+            
+        
+        # For every cant_be entry that has a value of 0:
+            # Get the mutual_allowables for the row, column, and region
+            # If the length of the mutual_allowables is = n-1:
+                # Update the cant_be of self and the mutual_allowables to be
+                # only the mutually allowed values
+        """
+        
+        # This should be moved to a SudokuPuzzle method
+        # If any cant_be value has only 2 allowables in a region, checking for 
+        # a matching set of 2 allowables for the 2 SudokuCoordinates
     
     def single_exclusion(self, row, column, region):
         """
