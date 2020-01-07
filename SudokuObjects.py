@@ -27,11 +27,28 @@ class SudokuPuzzle():
         location has been solved for.
         
     Methods:
-        - get_cant_be_vector_count
-        - check_if_coordinate_solved
-        - set_initial_coordinate_is_solved
-        - set_initial_cant_be
+        - check_shape_is_even
+        - get_readable_board
+        - get_iterable_sudoku_board
+        - get_sudoku_board_shape
+        - check_if_value_in_range
+        - check_sudoku_board_input
+        - initialize_sudoku_board
+        - get_coordinate
+        - set_initial_sudoku_board
         - set_cant_be
+        - get_region
+        - get_row
+        - get_column
+        - update_coordinates
+        - check_if_solved
+        - get_shared_set_cant_be_array
+        - get_values_with_n_matches
+        - set_cant_be_exclusions
+        - get_all_match_values
+        - set_exclusions_cant_be
+        - find_nth_exclusions
+        - board_nth_exclusion
     """
     
     def __init__(self, sudoku_board):
@@ -68,7 +85,7 @@ class SudokuPuzzle():
         
         return readable_board
 
-    def iterable_sudoku_board(self):
+    def get_iterable_sudoku_board(self):
         iterable_sudoku_board = copy.copy(self.sudoku_board[0])
         for n in range(1,9):
             iterable_sudoku_board += copy.copy(self.sudoku_board[n])
@@ -113,6 +130,7 @@ class SudokuPuzzle():
 
     def get_coordinate(self, row_coordinate, column_coordinate):
         coordinate = self.sudoku_board[row_coordinate][column_coordinate]
+        
         return coordinate
 
     def set_initial_sudoku_board(self, sudoku_board):
@@ -144,20 +162,23 @@ class SudokuPuzzle():
                 loop_row = n + initial_row
                 loop_column = m + initial_column
                 region.append(self.sudoku_board[loop_row][loop_column])
+                
         return region
     
     def get_row(self, row_number):
         row = self.sudoku_board[row_number]
+        
         return row
     
     def get_column(self, column_number):
         column = []
         for n in range(9):
             column.append(self.sudoku_board[n][column_number])
+            
         return column
     
     def update_coordinates(self):
-        for coordinate in self.iterable_sudoku_board():
+        for coordinate in self.get_iterable_sudoku_board():
             row_number = coordinate.location[0]
             column_number = coordinate.location[1]
             row = self.get_row(row_number)
@@ -168,7 +189,7 @@ class SudokuPuzzle():
         
     def check_if_solved(self):
         solved_tracker = True
-        for coordinate in self.iterable_sudoku_board():
+        for coordinate in self.get_iterable_sudoku_board():
             if not coordinate.value:
                 solved_tracker = False
                 break
@@ -181,6 +202,7 @@ class SudokuPuzzle():
             for coordinate in shared_set:
                 cant_be_vector.append(coordinate.cant_be[value_index])
             cant_be_by_value.append(cant_be_vector)
+            
         return cant_be_by_value
             
     def get_values_with_n_matches(self, n, shared_set_cant_be):
@@ -264,6 +286,28 @@ class SudokuCoordinate():
         coordinate.
         - solved: Boolean; Flag for whether or not the value for this 
         coordinate has been solved for.
+        
+    Methods:
+        - error_value_is_not_integer
+        - error_value_is_negative
+        - error_value_is_greater_than_nine
+        - error_location_is_non_iterable
+        - error_location_is_too_long
+        - check_input_value
+        - check_if_in_range
+        - check_if_integer
+        - check_input_location
+        - check_inputs
+        - set_location
+        - set_initial_cant_be
+        - get_cant_be_vector_count
+        - get_region_location
+        - create_solved_cant_be
+        - get_mutual_allowables
+        - build_empty_mutual_allowables
+        - single_exclusion
+        - update_cant_be
+        - update_value
     """
     
     def __init__(self, coordinate_value, location):
@@ -336,7 +380,6 @@ class SudokuCoordinate():
             self.location = tuple(location)
         else:
             self.location = location
-            
     
     def set_initial_cant_be(self):
         if self.value:
@@ -385,40 +428,7 @@ class SudokuCoordinate():
             mutual_allowables.append([])
             
         return mutual_allowables
-    
-    def nth_exclusion(self, n, row, column, region):
-        """
-        mutual_row_allowables: List, List, SudokuCoordinate; Each row
-        represents a cant_be index. Stores the SudokuCoordinates in the same
-        row as self that share that cant_be index as False
-        """
-        
-        """
-        print('nth_exclusion: UNDER CONSTRUCTION')
-        mutual_row_allowables = self.build_empty_mutual_allowables()
-        mutual_column_allowables = self.build_empty_mutual_allowables()
-        mutual_region_allowables = self.build_empty_mutual_allowables()
-        # loop through self.cant_be
-        for cant_be_index in range(9):
-            if not self.cant_be[cant_be_index]:
-                mutual_row_allowables[cant_be_index] = self.get_mutual_allowables(row, cant_be_index)
-                mutual_column_allowables[cant_be_index] = self.get_mutual_allowables(column, cant_be_index)
-                mutual_region_allowables[cant_be_index] = self.get_mutual_allowables(region, cant_be_index)
-        # Check for n mutual allowables of length n-1 with matching coordinate
-        # makeup
-        for cant_be_index in range(9):
-            
-        
-        # For every cant_be entry that has a value of 0:
-            # Get the mutual_allowables for the row, column, and region
-            # If the length of the mutual_allowables is = n-1:
-                # Update the cant_be of self and the mutual_allowables to be
-                # only the mutually allowed values
-        """
-        
-        # This should be moved to a SudokuPuzzle method
-        # If any cant_be value has only 2 allowables in a region, checking for 
-        # a matching set of 2 allowables for the 2 SudokuCoordinates
+
     
     def single_exclusion(self, row, column, region):
         """
