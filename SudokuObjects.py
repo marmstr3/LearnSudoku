@@ -16,16 +16,6 @@ class SudokuPuzzle():
         - sudoku_board: Numpy Array, Integer; A 9x9 array the current state of  
         the sudoku puzzle.
         
-        - cant_be: Numpy Array, Boolean; 9x9x9 array where the first 2 
-        coordinates are the coordinates in the puzzle, and the last coordinate
-        represents the possible values (1 through 9) for the location in the p
-        puzzle. A True in any location means that the corresponding value cannot
-        be used at this location in the puzzle.
-        
-        - coordinate_is_solved: Numpy Array, Boolean; 9x9 array that represents 
-        each location on the board. A True value means the corresponding 
-        location has been solved for.
-        
     Methods:
         - check_shape_is_even
         - get_readable_board
@@ -36,7 +26,6 @@ class SudokuPuzzle():
         - initialize_sudoku_board
         - get_coordinate
         - set_initial_sudoku_board
-        - set_cant_be
         - get_region
         - get_row
         - get_column
@@ -140,16 +129,6 @@ class SudokuPuzzle():
             for column_coordinate in range(9):
                 coordinate_value = sudoku_board[row_coordinate][column_coordinate]
                 self.sudoku_board[row_coordinate][column_coordinate] = SudokuCoordinate(coordinate_value, (row_coordinate, column_coordinate))
-    
-    def set_cant_be(self):
-        for row_coordinate in range(9):
-            for column_coordinate in range(9):
-                if not self.coordinate_is_solved[row_coordinate, column_coordinate]:
-                    for n in range(9):
-                        if (n + 1) in self.sudoku_board[row_coordinate, :]:
-                            self.cant_be[row_coordinate, column_coordinate, n] = True
-                        elif (n + 1) in self.sudoku_board[:, column_coordinate]:
-                            self.cant_be[row_coordinate, column_coordinate, n] = True
                       
     def get_region(self, row_number, column_number):
         # Floor divide to get index of region and then multiply by 3 to get 
